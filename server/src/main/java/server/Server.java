@@ -7,8 +7,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Server {
+
+    private static final Logger logger = Logger.getLogger(Server.class.getName()); // инициализируем логгер
+
     private ServerSocket server;
     private Socket socket;
     private final int PORT = 8189;
@@ -16,21 +21,25 @@ public class Server {
     private AuthService authService;
 
     public Server() {
+
         clients = new CopyOnWriteArrayList<>();
 //        authService = new SimpleAuthService();
         //==============//
         if (!SQLHandler.connect()) {
+            logger.log(Level.SEVERE, "Не удалось подключиться к БД");
             throw new RuntimeException("Не удалось подключиться к БД");
         }
         authService = new DBAuthServise();
         //==============//
         try {
             server = new ServerSocket(PORT);
-            System.out.println("Server started");
+            logger.log(Level.INFO, "Server started"); // консольный лог на включение сервера
+          //  System.out.println("Server started");
 
             while (true) {
                 socket = server.accept();
-                System.out.println("Client connected");
+                logger.log(Level.INFO, "\"Client connected\""); // лог на подключение клиента
+              //  System.out.println("Client connected");
                 new ClientHandler(this, socket);
             }
 
